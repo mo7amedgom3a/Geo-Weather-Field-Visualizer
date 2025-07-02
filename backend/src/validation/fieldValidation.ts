@@ -21,7 +21,7 @@ export const createFieldSchema = z.object({
   description: z.string().max(200, 'Description must be 200 characters or less'),
   geojson: featureSchema.refine((data) => {
     try {
-      // Calculate area using Turf.js
+      // Calculate area using Turf.js (area is returned in square meters)
       const area = turf.area(data);
       const acres = area * 0.000247105; // Convert square meters to acres
       return acres <= 100;

@@ -70,7 +70,7 @@ export class FieldService {
       const dist = turf.distance(
         turf.point([station.longitude, station.latitude]),
         turf.point([lon, lat]),
-        { units: 'kilometers' }
+        'kilometers'
       );
       
       if (dist < minDist) {

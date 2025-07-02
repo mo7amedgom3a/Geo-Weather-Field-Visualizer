@@ -1,0 +1,35 @@
+{
+  "name": "frontend",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint"
+  },
+  "dependencies": {
+    "@mapbox/mapbox-gl-draw": "^1.4.3",
+    "@turf/turf": "^6.5.0",
+    "axios": "^1.6.8",
+    "chart.js": "^4.4.1",
+    "mapbox-gl": "^3.13.0",
+    "maplibre-gl": "^3.6.1",
+    "next": "15.3.4",
+    "react": "^19.0.0",
+    "react-chartjs-2": "^5.2.0",
+    "react-dom": "^19.0.0",
+    "react-map-gl": "^8.0.4"
+  },
+  "devDependencies": {
+    "@eslint/eslintrc": "^3",
+    "@types/geojson": "^7946.0.12",
+    "@types/mapbox__mapbox-gl-draw": "^1.2.7",
+    "@types/node": "^20",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "eslint": "^9",
+    "eslint-config-next": "15.3.4",
+    "typescript": "^5"
+  }
+}
