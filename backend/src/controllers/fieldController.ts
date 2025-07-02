@@ -132,4 +132,31 @@ export class FieldController {
       res.status(500).json(response);
     }
   }
+
+  async getWeatherForField(req: Request, res: Response): Promise<void> {
+    try {
+      const fieldId = parseInt(req.params.id);
+      if (isNaN(fieldId)) {
+        const response: ApiResponse = {
+          success: false,
+          error: 'Invalid field ID'
+        };
+        res.status(400).json(response);
+        return;
+      }
+      const result = await this.fieldService.getWeatherForField(fieldId);
+      const response: ApiResponse = {
+        success: true,
+        data: result,
+        message: 'Weather data fetched successfully'
+      };
+      res.status(200).json(response);
+    } catch (error: any) {
+      const response: ApiResponse = {
+        success: false,
+        error: error.message || 'Failed to fetch weather data'
+      };
+      res.status(500).json(response);
+    }
+  }
 } 

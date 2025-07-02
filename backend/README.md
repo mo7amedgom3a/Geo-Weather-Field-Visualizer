@@ -58,6 +58,7 @@ docker run -p 3001:3001 --env-file .env geo-weather-backend
 - `GET /api/field` - Get all fields
 - `PUT /api/field/:id` - Update field name/description
 - `DELETE /api/field/:id` - Delete a field
+- `GET /api/field/:id/weather` - Fetch weather data for a field (returns weather data from the nearest CoAgMet station to the field's centroid)
 
 ### Health Check
 
@@ -93,4 +94,38 @@ docker run -p 3001:3001 --env-file .env geo-weather-backend
 - `DB_PASSWORD` - MySQL password (default: 2003)
 - `DB_NAME` - Database name (default: geo_weather_db)
 - `PORT` - Server port (default: 3001)
-- `NODE_ENV` - Environment (development/production) 
+- `NODE_ENV` - Environment (development/production)
+
+### GET /api/field/:id/weather
+Fetches weather data for the field with the given ID. The backend determines the nearest CoAgMet weather station to the field's centroid and returns recent weather data for that station.
+
+**Response Example:**
+```json
+{
+  "success": true,
+  "data": {
+    "station": {
+      "id": "alt01",
+      "name": "Altona",
+      "lat": 40.097,
+      "lon": -105.281
+    },
+    "weather": {
+      "which": "qc",
+      "frequency": "daily",
+      "timestep": 86400,
+      "timezone": "mst",
+      "tzOffset": "-07:00",
+      "units": "us",
+      "station": "alt01",
+      "time": ["2025-06-01", "2025-06-02"],
+      "tMax": [85.69, 82.17],
+      "tMin": [50.92, 49.59],
+      "rhMax": [0.85, 0.946],
+      "rhMin": [0.243, 0.302],
+      "precip": [0, 0.25]
+    }
+  },
+  "message": "Weather data fetched successfully"
+}
+``` 
