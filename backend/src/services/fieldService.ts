@@ -3,6 +3,7 @@ import { UserRepository } from '../repositories/userRepository';
 import { CreateFieldRequest, UpdateFieldRequest, Field } from '../types';
 import axios from 'axios';
 import * as turf from '@turf/turf';
+import stations from './stations.json';
 
 export class FieldService {
   private fieldRepository: FieldRepository;
@@ -31,7 +32,8 @@ export class FieldService {
 
   async getAllFields(): Promise<Field[]> {
     const user = await this.userRepository.getDefaultUser();
-    return await this.fieldRepository.getAllFields(user.id); // get fields for the default user
+    const fields = await this.fieldRepository.getAllFields(user.id); // get fields for the default user
+    return fields;
   }
 
   async getFieldById(id: number): Promise<Field | null> {
@@ -48,45 +50,56 @@ export class FieldService {
     const user = await this.userRepository.getDefaultUser();
     return await this.fieldRepository.deleteField(id, user.id);
   }
-
   async getWeatherForField(fieldId: number): Promise<any> {
     const user = await this.userRepository.getDefaultUser();
     const field = await this.fieldRepository.getFieldById(fieldId, user.id);
     if (!field) throw new Error('Field not found');
 
-    // Calculate centroid
+    // Calculate centroid of the field
     const centroid = turf.centroid(field.geojson);
     const [lon, lat] = centroid.geometry.coordinates;
-
+    
+    // Get stations from the imported stations.json file
+    const availableStations = stations.stations;
+    
     // Find nearest station
     let minDist = Infinity;
-    let nearestStation = FieldService.COAGMET_STATIONS[0];
-    for (const station of FieldService.COAGMET_STATIONS) {
+    let nearestStation = null;
+    
+    for (const station of availableStations) {
       const dist = turf.distance(
-        turf.point([station.lon, station.lat]),
+        turf.point([station.longitude, station.latitude]),
         turf.point([lon, lat]),
         { units: 'kilometers' }
       );
+      
       if (dist < minDist) {
         minDist = dist;
         nearestStation = station;
       }
     }
+    
+    if (!nearestStation) {
+      throw new Error('No weather stations available');
+    }
 
-    // Fetch weather data from CoAgMet API
-    // Example endpoint: https://coagmet.colostate.edu/api/v1/weather/{station_id}
-    // For demo, fetch last 7 days
-    const today = new Date();
-    const start = new Date(today);
-    start.setDate(today.getDate() - 6);
-    const startStr = start.toISOString().slice(0, 10);
-    const endStr = today.toISOString().slice(0, 10);
-    const url = `https://coagmet.colostate.edu/api/v1/weather/${nearestStation.id}?start=${startStr}&end=${endStr}`;
-
-    const response = await axios.get(url);
-    return {
-      station: nearestStation,
-      weather: response.data
-    };
+    try {
+      // Use the pre-formatted URL from the station data to fetch weather
+      const response = await axios.get(nearestStation.url);
+      
+      return {
+        station: {
+          id: nearestStation.stationName,
+          name: nearestStation.stationName,
+          lat: nearestStation.latitude,
+          lon: nearestStation.longitude,
+          distance: Math.round(minDist * 10) / 10 // Round to 1 decimal place
+        },
+        weather: response.data
+      };
+    } catch (error) {
+      console.error(`Error fetching weather data from station ${nearestStation.stationName}:`, error);
+      throw new Error('Failed to fetch weather data');
+    }
   }
-} 
+}

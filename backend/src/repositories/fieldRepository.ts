@@ -25,12 +25,24 @@ export class FieldRepository {
       [userId]
     );
     
+
     const fields = rows as any[];
-    return fields.map(field => ({
-      ...field,
-      geojson: JSON.parse(field.geojson),
-      created_at: new Date(field.created_at)
-    }));
+    return fields.map(field => {
+      try {
+        return {
+          ...field,
+          geojson: typeof field.geojson === 'string' ? JSON.parse(field.geojson) : field.geojson,
+          created_at: new Date(field.created_at)
+        };
+      } catch (error) {
+        console.error(`Error parsing geojson for field ${field.id}:`, error);
+        return {
+          ...field,
+          geojson: field.geojson,
+          created_at: new Date(field.created_at)
+        };
+      }
+    });
   }
 
   async getFieldById(id: number, userId: number): Promise<Field | null> {
@@ -43,11 +55,20 @@ export class FieldRepository {
     if (fields.length === 0) return null;
     
     const field = fields[0];
-    return {
-      ...field,
-      geojson: JSON.parse(field.geojson),
-      created_at: new Date(field.created_at)
-    };
+    try {
+      return {
+        ...field,
+        geojson: typeof field.geojson === 'string' ? JSON.parse(field.geojson) : field.geojson,
+        created_at: new Date(field.created_at)
+      };
+    } catch (error) {
+      console.error(`Error parsing geojson for field ${field.id}:`, error);
+      return {
+        ...field,
+        geojson: field.geojson,
+        created_at: new Date(field.created_at)
+      };
+    }
   }
 
   async updateField(id: number, userId: number, updateData: UpdateFieldRequest): Promise<Field | null> {

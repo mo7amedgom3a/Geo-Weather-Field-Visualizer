@@ -35,7 +35,7 @@ export class FieldController {
   async getAllFields(req: Request, res: Response): Promise<void> {
     try {
       const fields = await this.fieldService.getAllFields();
-      
+      console.log(fields);
       const response: ApiResponse = {
         success: true,
         data: fields,
@@ -46,9 +46,37 @@ export class FieldController {
     } catch (error: any) {
       const response: ApiResponse = {
         success: false,
-        error: error.message || 'Failed to retrieve fields'
+        error: typeof error.message === 'string' ? error.message : JSON.stringify(error.message) || 'Failed to retrieve fields'
       };
       
+      res.status(500).json(response);
+    }
+  }
+
+  async getFieldById(req: Request, res: Response): Promise<void> {
+    try {
+      const fieldId = parseInt(req.params.id);
+      if (isNaN(fieldId)) {
+        const response: ApiResponse = {
+          success: false,
+          error: 'Invalid field ID'
+        };
+        res.status(400).json(response);
+        return;
+      } 
+
+      const field = await this.fieldService.getFieldById(fieldId);
+      const response: ApiResponse = {
+        success: true,
+        data: field,
+        message: 'Field retrieved successfully'
+      };
+      res.status(200).json(response);
+    } catch (error: any) {
+      const response: ApiResponse = {
+        success: false,
+        error: error.message || 'Failed to retrieve field'
+      };
       res.status(500).json(response);
     }
   }

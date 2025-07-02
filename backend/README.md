@@ -56,9 +56,10 @@ docker run -p 3001:3001 --env-file .env geo-weather-backend
 
 - `POST /api/field` - Create a new field
 - `GET /api/field` - Get all fields
+- `GET /api/field/:id` - Get a specific field by ID
 - `PUT /api/field/:id` - Update field name/description
 - `DELETE /api/field/:id` - Delete a field
-- `GET /api/field/:id/weather` - Fetch weather data for a field (returns weather data from the nearest CoAgMet station to the field's centroid)
+- `GET /api/field/:id/weather/` - Fetch weather data for a field (returns weather data from the nearest CoAgMet station to the field's centroid)
 
 ### Health Check
 
@@ -96,7 +97,9 @@ docker run -p 3001:3001 --env-file .env geo-weather-backend
 - `PORT` - Server port (default: 3001)
 - `NODE_ENV` - Environment (development/production)
 
-### GET /api/field/:id/weather
+## API Response Examples
+
+### GET /api/field/:id/weather/
 Fetches weather data for the field with the given ID. The backend determines the nearest CoAgMet weather station to the field's centroid and returns recent weather data for that station.
 
 **Response Example:**
@@ -128,4 +131,274 @@ Fetches weather data for the field with the given ID. The backend determines the
   },
   "message": "Weather data fetched successfully"
 }
-``` 
+```
+
+## Example Usage with curl
+
+### Health Check
+```bash
+curl http://localhost:3001/health
+```
+
+### Create a New Field
+```bash
+curl -X POST http://localhost:3001/api/field \
+  -H "Content-Type: application/json" \
+  -d '{
+    "name": "Test Field",
+    "description": "Demo field for weather analysis",
+    "geojson": {
+      "type": "Feature",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [[
+          [-105.28, 40.09],
+          [-105.28, 40.10],
+          [-105.27, 40.10],
+          [-105.27, 40.09],
+          [-105.28, 40.09]
+        ]]
+      },
+      "properties": {}
+    }
+  }'
+```
+
+**Expected Response:**
+```json
+{
+  "success": true,
+  "data": {
+    "id": 1,
+    "name": "Test Field",
+    "description": "Demo field for weather analysis",
+    "geojson": {
+      "type": "Feature",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [[
+          [-105.28, 40.09],
+          [-105.28, 40.10],
+          [-105.27, 40.10],
+          [-105.27, 40.09],
+          [-105.28, 40.09]
+        ]]
+      },
+      "properties": {}
+    },
+    "created_at": "2024-01-15T10:30:00.000Z"
+  },
+  "message": "Field created successfully"
+}
+```
+
+### Get All Fields
+```bash
+curl http://localhost:3001/api/field
+```
+
+**Expected Response:**
+```json
+{
+  "success": true,
+  "data": [
+    {
+      "id": 1,
+      "name": "Test Field",
+      "description": "Demo field for weather analysis",
+      "geojson": {
+        "type": "Feature",
+        "geometry": {
+          "type": "Polygon",
+          "coordinates": [[
+            [-105.28, 40.09],
+            [-105.28, 40.10],
+            [-105.27, 40.10],
+            [-105.27, 40.09],
+            [-105.28, 40.09]
+          ]]
+        },
+        "properties": {}
+      },
+      "created_at": "2024-01-15T10:30:00.000Z"
+    }
+  ],
+  "message": "Fields retrieved successfully"
+}
+```
+
+### Get a Specific Field by ID
+```bash
+curl http://localhost:3001/api/field/1
+```
+
+**Expected Response:**
+```json
+{
+  "success": true,
+  "data": {
+    "id": 1,
+    "name": "Test Field",
+    "description": "Demo field for weather analysis",
+    "geojson": {
+      "type": "Feature",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [[
+          [-105.28, 40.09],
+          [-105.28, 40.10],
+          [-105.27, 40.10],
+          [-105.27, 40.09],
+          [-105.28, 40.09]
+        ]]
+      },
+      "properties": {}
+    },
+    "created_at": "2024-01-15T10:30:00.000Z"
+  },
+  "message": "Field retrieved successfully"
+}
+```
+
+### Get Weather Data for a Field
+```bash
+curl http://localhost:3001/api/field/1/weather/
+```
+
+**Expected Response:**
+```json
+{
+  "success": true,
+  "data": {
+    "station": {
+      "id": "alt01",
+      "name": "Altona",
+      "lat": 40.097,
+      "lon": -105.281
+    },
+    "weather": {
+      "which": "qc",
+      "frequency": "daily",
+      "timestep": 86400,
+      "timezone": "mst",
+      "tzOffset": "-07:00",
+      "units": "us",
+      "station": "alt01",
+      "time": ["2025-06-01", "2025-06-02"],
+      "tMax": [85.69, 82.17],
+      "tMin": [50.92, 49.59],
+      "rhMax": [0.85, 0.946],
+      "rhMin": [0.243, 0.302],
+      "precip": [0, 0.25]
+    }
+  },
+  "message": "Weather data fetched successfully"
+}
+```
+
+### Update a Field
+```bash
+curl -X PUT http://localhost:3001/api/field/1 \
+  -H "Content-Type: application/json" \
+  -d '{
+    "name": "Updated Field Name",
+    "description": "Updated field description"
+  }'
+```
+
+**Expected Response:**
+```json
+{
+  "success": true,
+  "data": {
+    "id": 1,
+    "name": "Updated Field Name",
+    "description": "Updated field description",
+    "geojson": {
+      "type": "Feature",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [[
+          [-105.28, 40.09],
+          [-105.28, 40.10],
+          [-105.27, 40.10],
+          [-105.27, 40.09],
+          [-105.28, 40.09]
+        ]]
+      },
+      "properties": {}
+    },
+    "created_at": "2024-01-15T10:30:00.000Z"
+  },
+  "message": "Field updated successfully"
+}
+```
+
+### Delete a Field
+```bash
+curl -X DELETE http://localhost:3001/api/field/1
+```
+
+**Expected Response:**
+```json
+{
+  "success": true,
+  "message": "Field deleted successfully"
+}
+```
+
+## Error Responses
+
+### Validation Error Example
+```json
+{
+  "success": false,
+  "error": "Validation failed",
+  "details": [
+    {
+      "field": "name",
+      "message": "Field name must be between 1 and 20 characters"
+    }
+  ]
+}
+```
+
+### Not Found Error Example
+```json
+{
+  "success": false,
+  "error": "Field not found"
+}
+```
+
+### Server Error Example
+```json
+{
+  "success": false,
+  "error": "Internal server error"
+}
+```
+
+## Testing
+
+Run the test suite:
+```bash
+npm test
+```
+
+Run tests in watch mode:
+```bash
+npm run test:watch
+```
+
+## Development
+
+### Available Scripts
+
+- `npm run dev` - Start development server with hot reload
+- `npm run build` - Build for production
+- `npm start` - Start production server
+- `npm test` - Run tests
+- `npm run test:watch` - Run tests in watch mode
+- `npm run lint` - Run ESLint
+- `npm run lint:fix` - Fix ESLint issues 
