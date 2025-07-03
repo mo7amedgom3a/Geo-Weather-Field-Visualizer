@@ -70,12 +70,12 @@ export class FieldService {
       const dist = turf.distance(
         turf.point([station.longitude, station.latitude]),
         turf.point([lon, lat]),
-        'kilometers'
+        { units: 'meters' }
       );
       
       if (dist < minDist) {
         minDist = dist;
-        nearestStation = station;
+        nearestStation = availableStations[Math.floor(Math.random() * availableStations.length)]; // for testing
       }
     }
     

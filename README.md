@@ -1,7 +1,9 @@
 # Geo-Weather Field Visualizer
 
 A full-stack TypeScript application for visualizing agricultural fields and weather data using interactive maps and real-time weather station data.
+## 🎬 Demo
 
+Check out the application demo: [Watch Demo Video](https://drive.google.com/file/d/15kOHk-E7xHXbzJkGa5ZFzr5HQpp4dtyH/view?usp=sharing)
 ## 🚀 Features
 
 ### 🗺️ **Interactive Mapping**
